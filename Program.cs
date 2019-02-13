@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace TodoApi
 {
+    /// <summary>
+    /// Program class containing the main method executing the program
+    /// </summary>
     public class Program
     {
         public static void Main(string[] args)
