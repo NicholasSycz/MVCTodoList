@@ -14,13 +14,13 @@
         <h3>Things I must do...</h3>
         <div v-for="(todo, index) in todos" :key="index">
           <h5>
-            {{ index+1 }}. {{ todo.name }}
+            <input type="checkbox" :checked=todo.IsComplete v-on:change="completeTodo" unchecked> {{ todo.name }}
             <button type="button" v-on:click="editTodo()">Edit</button>
             <button type="button" v-on:click="deleteTodo(todo.id)">Delete</button>
           </h5>
         </div>
       </div>
-      <button type="button" v-on:click="clearTodos()">Clear Todos</button>
+      <button type="button" v-on:click="clearTodos(todo.id)">Clear Todos</button>
     </template>
   </div>
 </template>
@@ -44,6 +44,7 @@ export default {
         alert("error");
       });
   },
+  // methods for adding, editing, removing todos.
   methods: {
     addTodo(todo) {
       fetch("http://localhost:3000/api/todo", {
@@ -65,8 +66,21 @@ export default {
     editTodo() {
       // TODO -- Create an editable todo
     },
-    completeTodo(todo) {
-      // TODO -- Implement a Completed Todo section
+    completeTodo(todoId) {
+      fetch(`http://localhost:3000/api/todo/${todoId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: todoId })
+      })
+      .then(resp => resp.text())
+      .then(completedTodo => {
+        // TODO -- grab the id of the todo, then change state of IsComplete to TRUE.
+      })
+      .catch(error => {
+        console.log(error);
+      })
     },
     deleteTodo(todoId) {
       fetch(`http://localhost:3000/api/todo/${todoId}`, {
@@ -81,15 +95,34 @@ export default {
           let newTodosState = this.todos.filter(todo => {
             return todo.id !== todoId;
           });
-    
+
           this.todos = newTodosState;
         })
         .catch(error => {
           console.log(error);
         });
     },
-    clearTodos() {
-      this.todos = [];
+    /*
+    ******** BROKEN -- only removes todos from frontend ********
+    */
+    clearTodos(todoId) {
+      fetch(`http://localhost:3000/api/todo/${todoId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: todoId })
+      })
+        .then(resp => resp.text())
+        .then(deleteAllTodos => {
+          let newTodosState = this.todos.filter(todo => {
+            return todo.id === todoId;
+          });
+          this.todos = newTodosState;
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   }
 };
