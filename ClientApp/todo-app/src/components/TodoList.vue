@@ -1,9 +1,8 @@
 <template>
   <div>
-    <h1>Lets Yeet this Wheat</h1>
+    <h1 class="title">Todo List</h1>
     <div>
       <input type="text" v-model="todo" placeholder="Enter a Todo" @keypress.enter="addTodo(todo)">
-      
       <button type="button" v-on:click="addTodo(todo)">Add</button>
     </div>
     <template v-if="todos.length === 0">
@@ -13,14 +12,26 @@
       <div>
         <h3>Things I must do...</h3>
         <div v-for="(todo, index) in todos" :key="index">
-          <h5>
-            <input type="checkbox" :checked=todo.IsComplete v-on:change="completeTodo" unchecked> {{ todo.name }}
-            <button type="button" v-on:click="editTodo()">Edit</button>
-            <button type="button" v-on:click="deleteTodo(todo.id)">Delete</button>
-          </h5>
+          <table>
+            <tr>
+              <td class="complete-box">
+                <input
+                  type="checkbox"
+                  :checked="todo.IsComplete"
+                  v-on:change="completeTodo"
+                  unchecked
+                >
+              </td>
+              <td class="todos">{{ todo.name }}</td>
+              <td class="btn">
+                <button class="btn edit" type="button" v-on:click="editable(todo)">Edit</button>
+                <button class="btn delete" type="button" v-on:click="deleteTodo(todo.id)">Delete</button>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
-      <button type="button" v-on:click="clearTodos(todo.id)">Clear Todos</button>
+      <button type="button" v-on:click="clearTodos(todo)">Clear Todos</button>
     </template>
   </div>
 </template>
@@ -63,8 +74,29 @@ export default {
           console.log(error);
         });
     },
-    editTodo() {
-      // TODO -- Create an editable todo
+    editable(todo) {
+      li.setAttribute("isEditable", true);
+      li.setAttribute("id", todo.id);
+      li.addEventListener("blur", editTodo);
+      li.append(li);
+    },
+    /*
+     ******** BROKEN ********
+     */
+    editTodo(todoId) {
+      fetch(`http://localhost:3000/api/todo/${todoId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: todoId })
+          .then(resp => resp.json())
+          .then(editTodo => {
+            if (editing) {
+              this.todo === editedTodo;
+            }
+          })
+      });
     },
     completeTodo(todoId) {
       fetch(`http://localhost:3000/api/todo/${todoId}`, {
@@ -72,15 +104,19 @@ export default {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ id: todoId })
+        body: JSON.stringify({
+          id: todoId
+        })
       })
-      .then(resp => resp.text())
-      .then(completedTodo => {
-        // TODO -- grab the id of the todo, then change state of IsComplete to TRUE.
-      })
-      .catch(error => {
-        console.log(error);
-      })
+        .then(resp => resp.json())
+        .then(completedTodo => {
+          if (todoId.IsComplete) {
+            todo.isComplete === true;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     deleteTodo(todoId) {
       fetch(`http://localhost:3000/api/todo/${todoId}`, {
@@ -103,20 +139,20 @@ export default {
         });
     },
     /*
-    ******** BROKEN -- only removes todos from frontend ********
-    */
-    clearTodos(todoId) {
-      fetch(`http://localhost:3000/api/todo/${todoId}`, {
+     ******** BROKEN -- only removes todos from frontend ********
+     */
+    clearTodos() {
+      fetch("http://localhost:3000/api/todo/", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ id: todoId })
+        body: JSON.stringify({ todos })
       })
         .then(resp => resp.text())
         .then(deleteAllTodos => {
-          let newTodosState = this.todos.filter(todo => {
-            return todo.id === todoId;
+          let newTodosState = todos.filter(todo => {
+            return todos === todos;
           });
           this.todos = newTodosState;
         })
@@ -145,7 +181,23 @@ li {
 a {
   color: #42b983;
 }
+
+.title {
+  color:black;
+}
 .todos {
-  justify-content: left;
+  text-align: left;
+  width: 75%;
+}
+
+.complete-box {
+  padding: 0px 5px 0px 5px;
+}
+:checked {
+  text-decoration: line-through;
+}
+
+.btn {
+  float: right;
 }
 </style>
