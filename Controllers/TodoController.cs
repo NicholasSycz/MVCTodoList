@@ -26,12 +26,16 @@ namespace TodoApi.Controllers
         {
             _context = context;
 
-            if (_context.TodoItems.Count() == 0)
-            {
-                // This is a default todo for the list
-                _context.TodoItems.Add(new TodoItem { Name = "Create a functioning todo application", IsComplete = false });
-                _context.SaveChanges();
-            }
+            /*
+                // Adding a todo for testing purposes...
+
+                if (_context.TodoItems.Count() == 0)
+                {
+                    // This is a default todo for the list
+                    _context.TodoItems.Add(new TodoItem { Name = "Create a functioning todo application", IsComplete = false });
+                    _context.SaveChanges();
+                }
+            */
         }
 
         /// <summary>

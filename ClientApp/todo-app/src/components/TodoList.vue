@@ -11,7 +11,7 @@
     <template v-else>
       <div>
         <h3>Things I must do...</h3>
-        <div v-for="(todo, index) in todos" :key="index">
+        <div class="container" v-for="(todo, index) in todos" :key="index">
           <table>
             <tr>
               <td class="complete-box">
@@ -31,7 +31,7 @@
           </table>
         </div>
       </div>
-      <button type="button" v-on:click="clearTodos(todo)">Clear Todos</button>
+      <button type="button" v-on:click="clearTodos(todo.id)">Clear Todos</button>
     </template>
   </div>
 </template>
@@ -138,27 +138,24 @@ export default {
           console.log(error);
         });
     },
-    /*
-     ******** BROKEN -- only removes todos from frontend ********
-     */
     clearTodos() {
-      fetch("http://localhost:3000/api/todo/", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ todos })
-      })
+      for(let i = 0; i < this.todos.length; i++) {
+        fetch(`http://localhost:3000/api/todo/${this.todos[i].id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ id: this.todos[i].id })
+        })
         .then(resp => resp.text())
-        .then(deleteAllTodos => {
-          let newTodosState = todos.filter(todo => {
-            return todos === todos;
+        .then(deleteAll => {
+          let newTodosState = this.todos.filter(todo => {
+            return this.todo.id === this.todos[i].id;
           });
           this.todos = newTodosState;
         })
-        .catch(error => {
-          console.log(error);
-        });
+      }
+      //this.todos = [];
     }
   }
 };
@@ -183,13 +180,18 @@ a {
 }
 
 .title {
-  color:black;
+  color: black;
 }
+
 .todos {
   text-align: left;
   width: 75%;
 }
 
+.container {
+  text-align: center;
+  display: inline-block;
+}
 .complete-box {
   padding: 0px 5px 0px 5px;
 }
